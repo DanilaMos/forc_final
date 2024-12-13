@@ -1,4 +1,4 @@
-name: forc_env
+name: forc_env_01
 channels:
   - conda-forge
 dependencies:

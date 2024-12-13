@@ -182,6 +182,11 @@ class Simulator:
         
         # Handle graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
+
+        # Data collection
+        self.times = []
+        self.positions = []
+        self.velocities = []
     
     def _setup_video_recording(self) -> None:
         """Setup video recording directory if enabled."""
@@ -397,6 +402,10 @@ class Simulator:
                 
                 # Get state and compute control
                 state = self.get_state()
+
+                self.times.append(t)
+                self.positions.append(state['q'])
+                self.velocities.append(state['dq'])
                 
                 # Call controller with or without desired state
                 if self.enable_task_space:

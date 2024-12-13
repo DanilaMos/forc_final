@@ -70,7 +70,7 @@ def main():
         xml_path="robots/universal_robots_ur5e/scene.xml",
         dt=0.001,
         enable_task_space=False,
-        show_viewer=False,
+        show_viewer=True,
         record_video=True,
         video_path="logs/videos/02_step_by_step.mp4",
         width=1920,
