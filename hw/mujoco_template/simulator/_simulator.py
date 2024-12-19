@@ -147,7 +147,7 @@ class Simulator:
         self.model.opt.timestep = dt
         self.dt = dt
         
-        # Task space control option
+         # Task space control option
         self.enable_task_space = enable_task_space
         
         # Visualization options
@@ -396,7 +396,8 @@ class Simulator:
         try:
             t = 0
             start_time = time.perf_counter()
-            
+            count = 1
+
             while (not viewer or viewer.is_running()):
                 step_start = time.perf_counter()
                 
@@ -444,7 +445,10 @@ class Simulator:
                 if t > real_time:
                     time.sleep(t - real_time)
                 elif real_time - t > self.dt:
-                    print(f"Warning: Simulation running slower than real-time by {real_time - t:.3f}s")
+                    if count == 50:
+                        print(f"Warning: Simulation running slower than real-time by {real_time - t:.3f}s")
+                        count = 1
+                    else: count += 1
                     
         except KeyboardInterrupt:
             print("\nSimulation interrupted by user")
@@ -453,63 +457,63 @@ class Simulator:
                 viewer.close()
             self._save_video()
 
-def set_joint_damping(self, damping: np.ndarray) -> None:
-        """Set joint damping coefficients.
+    def set_joint_damping(self, damping: np.ndarray) -> None:
+            """Set joint damping coefficients.
+            
+            Args:
+                damping: Array of damping coefficients for each joint
+            """
+            assert len(damping) == len(self.joint_names), "Damping array must match number of joints"
+            for i, name in enumerate(self.joint_names):
+                self.model.dof_damping[self.model.joint(name).dofadr[0]] = damping[i]
+    
+    def set_joint_friction(self, friction: np.ndarray) -> None:
+        """Set joint friction coefficients.
         
         Args:
-            damping: Array of damping coefficients for each joint
+            friction: Array of friction coefficients for each joint
         """
-        assert len(damping) == len(self.joint_names), "Damping array must match number of joints"
+        assert len(friction) == len(self.joint_names), "Friction array must match number of joints"
         for i, name in enumerate(self.joint_names):
-            self.model.dof_damping[self.model.joint(name).dofadr[0]] = damping[i]
-
-def set_joint_friction(self, friction: np.ndarray) -> None:
-    """Set joint friction coefficients.
-    
-    Args:
-        friction: Array of friction coefficients for each joint
-    """
-    assert len(friction) == len(self.joint_names), "Friction array must match number of joints"
-    for i, name in enumerate(self.joint_names):
-        self.model.dof_frictionloss[self.model.joint(name).dofadr[0]] = friction[i]
-def scale_body_properties(self, body_name: str, scale: float = 1.0) -> None:
-    """Scale mass and inertia of a specific body by a factor.
-    
-    Args:
-        body_name: Name of the body to modify
-        scale: Scale factor to apply to mass and inertia
-    """
-    body_id = self.model.body(body_name).id
-    self.model.body_mass[body_id] *= scale
-    self.model.body_inertia[body_id] *= scale
-def modify_body_properties(self, body_name: str, mass: Optional[float] = None, 
-                     inertia: Optional[np.ndarray] = None) -> None:
-    """Modify mass and inertia of a specific body with explicit values.
-    
-    Args:
-        body_name: Name of the body to modify
-        mass: New mass value
-        inertia: New inertia matrix (3x3 array)
-    """
-    body_id = self.model.body(body_name).id
-    
-    if mass is not None:
-        self.model.body_mass[body_id] = mass
-    
-    if inertia is not None:
-        assert inertia.shape == (3, 3), "Inertia must be a 3x3 matrix"
-        self.model.body_inertia[body_id] = inertia
-def get_body_properties(self, body_name: str) -> Dict[str, np.ndarray]:
-    """Get mass and inertia of a specific body.
-    
-    Args:
-        body_name: Name of the body
-    
-    Returns:
-        Dictionary containing mass and inertia matrix
-    """
-    body_id = self.model.body(body_name).id
-    return {
-        'mass': self.model.body_mass[body_id],
-        'inertia': self.model.body_inertia[body_id]
-    }
+            self.model.dof_frictionloss[self.model.joint(name).dofadr[0]] = friction[i]
+    def scale_body_properties(self, body_name: str, scale: float = 1.0) -> None:
+        """Scale mass and inertia of a specific body by a factor.
+        
+        Args:
+            body_name: Name of the body to modify
+            scale: Scale factor to apply to mass and inertia
+        """
+        body_id = self.model.body(body_name).id
+        self.model.body_mass[body_id] *= scale
+        self.model.body_inertia[body_id] *= scale
+    def modify_body_properties(self, body_name: str, mass: Optional[float] = None, 
+                         inertia: Optional[np.ndarray] = None) -> None:
+        """Modify mass and inertia of a specific body with explicit values.
+        
+        Args:
+            body_name: Name of the body to modify
+            mass: New mass value
+            inertia: New inertia matrix (3x3 array)
+        """
+        body_id = self.model.body(body_name).id
+        
+        if mass is not None:
+            self.model.body_mass[body_id] = mass
+        
+        if inertia is not None:
+            assert inertia.shape == (3, 3), "Inertia must be a 3x3 matrix"
+            self.model.body_inertia[body_id] = inertia
+    def get_body_properties(self, body_name: str) -> Dict[str, np.ndarray]:
+        """Get mass and inertia of a specific body.
+        
+        Args:
+            body_name: Name of the body
+        
+        Returns:
+            Dictionary containing mass and inertia matrix
+        """
+        body_id = self.model.body(body_name).id
+        return {
+            'mass': self.model.body_mass[body_id],
+            'inertia': self.model.body_inertia[body_id]
+        }
